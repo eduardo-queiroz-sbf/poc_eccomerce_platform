@@ -1,0 +1,54 @@
+name: boilerplate
+description: A new Flutter project.
+
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  foundation:
+    path: "./../../foundation"
+  fairplay_ds:
+    path: "./../../fairplay_ds"
+  search:
+    path: "./../../features/search"
+  home:
+    path: "./../../features/home"
+  firebase:
+    path: "./../../core/firebase"
+  flutter_bloc: 8.0.1
+  get_it: 7.2.0
+  injectable: 1.5.3
+  flutter_svg: 0.22.0
+
+dependency_overrides:
+  flutter_staggered_animations:
+    git:
+      url: https://github.com/mobiten/flutter_staggered_animations.git
+      ref: 88ef999433f129b3c19e22ea5348e6543983a011
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+  build_runner: ^2.2.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/images/icons/
+    - assets/images/animations/
+    - assets/images/home/ofertas-diarias/
+    - assets/images/home/ofertas-principais/
+    - assets/images/home/ofertas-secundarias/
+    - assets/config/
+    #remove for production app
+    - assets/mocked_images/
+    - assets/mocked_images/icons/
+    # - assets/mocked_images/animations/

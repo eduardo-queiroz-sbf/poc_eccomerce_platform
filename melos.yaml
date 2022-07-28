@@ -1,0 +1,12 @@
+name: eccomerce_platform
+
+packages:
+  - foundation/**
+  - features/**
+  - fairplay-ds/**
+  - boilerplate/**
+  - core/**
+
+scripts:
+  analyze:
+    exec: dart analyze .

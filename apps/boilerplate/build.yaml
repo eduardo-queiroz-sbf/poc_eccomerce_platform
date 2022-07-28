@@ -1,0 +1,13 @@
+targets:
+  $default:
+    builders:
+      foundation:foundation_builder:
+        generate_for:
+          include:
+            - "lib/features/search/**"
+            - "lib/theme/**"
+            - "lib/routes.dart"
+            - "lib/foundation/router/**"
+            - "lib/setup.dart"
+          exclude:
+            - "lib/foundation/context/**"

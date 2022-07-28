@@ -1,0 +1,14 @@
+builders:
+  foundation_builder:
+    import: "package:foundation/generator/infra/builder.dart"
+    builder_factories: ["foundationConventionBuilder"]
+    build_extensions: { ".dart": [".injectable.json"] }
+    auto_apply: dependents
+    build_to: cache
+
+  injectable_config_builder:
+    import: "package:foundation/generator/infra/builder.dart"
+    builder_factories: ["foundationConfigBuilder"]
+    build_extensions: { ".dart": [".config.dart"] }
+    auto_apply: dependents
+    build_to: source
