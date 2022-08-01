@@ -1,4 +1,4 @@
-import 'package:foundation/generator/infra/injectable_types.dart';
+import 'package:injectable_generator/injectable_types.dart';
 
 enum InferenceType {
   uniqueByClassName,

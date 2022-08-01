@@ -1,24 +1,28 @@
 import 'dart:convert';
 
-import 'package:build_test/build_test.dart';
-import 'package:collection/collection.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:foundation/generator/convention/clean_conventions.dart';
 import 'package:glob/glob.dart';
 import 'package:injectable/injectable.dart';
-import 'package:foundation/generator/infra/code_builder/builder_utils.dart';
-import 'package:foundation/generator/infra/code_builder/library_builder.dart';
-import 'package:foundation/generator/infra/models/dependency_config.dart';
-import 'package:foundation/generator/infra/models/importable_type.dart';
-import 'package:foundation/generator/infra/resolvers/importable_type_resolver.dart';
+import 'package:injectable_generator/code_builder/builder_utils.dart';
+import 'package:injectable_generator/code_builder/library_builder.dart';
+import 'package:injectable_generator/models/dependency_config.dart';
+import 'package:injectable_generator/models/importable_type.dart';
+import 'package:injectable_generator/resolvers/importable_type_resolver.dart';
+import 'package:injectable_generator/utils.dart';
 import 'package:source_gen/source_gen.dart';
 
-import '../utils.dart';
+class CoreInjectableConfigGenerator
+    extends GeneratorForAnnotation<InjectableInit> {
+  CoreInjectableConfigGenerator(this.customCallback);
 
-class FoundationConfig extends GeneratorForAnnotation<InjectableInit> {
+  final List<DependencyConfig> Function(
+    List<DependencyConfig> deps,
+    String currentPackage,
+  ) customCallback;
+
   @override
   dynamic generateForAnnotatedElement(
       Element element, ConstantReader annotation, BuildStep buildStep) async {
@@ -27,20 +31,20 @@ class FoundationConfig extends GeneratorForAnnotation<InjectableInit> {
         .listValue
         .map((e) => e.toStringValue());
 
-    var assetReader = await PackageAssetReader.currentIsolate(
-        rootPackage: buildStep.inputId.package);
-
     final usesNullSafety = annotation.read('usesNullSafety').boolValue;
 
     var targetFile = element.source?.uri;
     var preferRelativeImports =
         annotation.read("preferRelativeImports").boolValue;
 
+    final dirPattern = generateForDir.length > 1
+        ? '{${generateForDir.join(',')}}'
+        : '${generateForDir.first}';
+    final injectableConfigFiles = Glob("$dirPattern/**.injectable.json");
+
     final jsonData = <Map>[];
-    final cachedAssets =
-        await assetReader.findAssets(Glob("**/**.injectable.json")).toList();
-    for (final id in cachedAssets) {
-      final json = jsonDecode(await assetReader.readAsString(id));
+    await for (final id in buildStep.findAssets(injectableConfigFiles)) {
+      final json = jsonDecode(await buildStep.readAsString(id));
       jsonData.addAll([...json]);
     }
 
@@ -62,14 +66,12 @@ class FoundationConfig extends GeneratorForAnnotation<InjectableInit> {
         .map((e) => e.toStringValue())
         .where((e) => e != null)
         .cast<String>();
-
+    customCallback(deps, buildStep.inputId.package);
     _reportMissingDependencies(
         deps, ignoredTypes, ignoreTypesInPackages, targetFile);
-    final overridedDeps =
-        _overrideDependencies(deps, buildStep.inputId.package);
-    final resolvedDeps = _validateDuplicateDependencies(overridedDeps);
+    _validateDuplicateDependencies(deps);
     final generator = LibraryGenerator(
-      dependencies: resolvedDeps,
+      dependencies: deps,
       targetFile: preferRelativeImports ? targetFile : null,
       initializerName: initializerName,
       asExtension: asExtension,
@@ -130,76 +132,24 @@ class FoundationConfig extends GeneratorForAnnotation<InjectableInit> {
     }
   }
 
-  List<DependencyConfig> _overrideDependencies(
-    List<DependencyConfig> deps,
-    String currentPackage,
-  ) {
-    List<DependencyConfig> depsValues = [];
+  void _validateDuplicateDependencies(List<DependencyConfig> deps) {
+    final validatedDeps = <DependencyConfig>[];
     for (var dep in deps) {
-      if (dep.typeImpl.import!.contains(currentPackage)) {
-        final generalImp = deps.firstWhereOrNull((element) =>
-            !element.typeImpl.import!.contains(currentPackage) &&
-            dep.typeImpl.import!
-                    .replaceFirst("package:$currentPackage/features/", "") ==
-                element.typeImpl.import!.replaceFirst("package:", ""));
+      var registered = validatedDeps.where((elm) =>
+          elm.type == dep.type && elm.instanceName == dep.instanceName);
+      if (registered.isEmpty) {
+        validatedDeps.add(dep);
+      } else {
+        Set<String> registeredEnvironments = registered
+            .fold(<String>{}, (prev, elm) => prev..addAll(elm.environments));
 
-        if (generalImp != null) {
-          depsValues.add(
-            dep.copyWith(
-              type: generalImp.type,
-            ),
-          );
-        } else {
-          depsValues.add(dep);
-        }
-      } else if (deps
-          .where((element) =>
-              element.typeImpl.import!.contains(currentPackage) &&
-              element.typeImpl.import!
-                      .replaceFirst("package:$currentPackage/features/", "") ==
-                  dep.typeImpl.import!.replaceFirst("package:", ""))
-          .isEmpty) {
-        depsValues.add(dep);
-      }
-    }
-
-    return depsValues;
-  }
-
-  List<DependencyConfig> _validateDuplicateDependencies(
-      List<DependencyConfig> deps) {
-    List<DependencyConfig> depsValues = [];
-    for (var dep in deps) {
-      final multipleImpl = deps.where((element) => dep.type == element.type);
-      final multipleImplWithoutName =
-          multipleImpl.where((element) => element.instanceName == null);
-
-      if (multipleImplWithoutName.isNotEmpty) {
-        final convention = CleanConventions.conventions.singleWhereOrNull(
-            (element) => RegExp(element.classPattern)
-                .hasMatch(multipleImpl.first.typeImpl.name));
-
-        if (convention!.inferenceType == InferenceType.multipleByInteger) {
-          depsValues.addAll(
-            multipleImpl.mapIndexed((index, element) {
-              return element.copyWith(instanceName: index.toString());
-            }),
-          );
-        } else if (convention!.inferenceType ==
-            InferenceType.multipleByClassName) {
-          depsValues.addAll(
-            multipleImpl.map((element) {
-              return element.copyWith(instanceName: element.typeImpl.name);
-            }),
-          );
-        } else if (multipleImpl.length > 1) {
+        if (registeredEnvironments.isEmpty ||
+            dep.environments
+                .any((env) => registeredEnvironments.contains(env))) {
           throwBoxed(
               '${dep.typeImpl} [${dep.type}] env: ${dep.environments} \nis registered more than once under the same environment');
-        } else {
-          depsValues.add(dep);
         }
       }
     }
-    return depsValues;
   }
 }

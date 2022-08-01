@@ -1,16 +1,15 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:injectable/injectable.dart';
-import 'package:foundation/generator/infra/models/dependency_config.dart';
-import 'package:foundation/generator/infra/models/dispose_function_config.dart';
-import 'package:foundation/generator/infra/models/importable_type.dart';
-import 'package:foundation/generator/infra/models/injected_dependency.dart';
-import 'package:foundation/generator/infra/models/module_config.dart';
-import 'package:foundation/generator/infra/utils.dart';
+import 'package:injectable_generator/injectable_types.dart';
+import 'package:injectable_generator/models/dependency_config.dart';
+import 'package:injectable_generator/models/dispose_function_config.dart';
+import 'package:injectable_generator/models/importable_type.dart';
+import 'package:injectable_generator/models/injected_dependency.dart';
+import 'package:injectable_generator/models/module_config.dart';
+import 'package:injectable_generator/resolvers/importable_type_resolver.dart';
+import 'package:injectable_generator/utils.dart';
 import 'package:source_gen/source_gen.dart';
-
-import '../injectable_types.dart';
-import 'importable_type_resolver.dart';
 
 const TypeChecker _namedChecker = TypeChecker.fromRuntime(Named);
 const TypeChecker _injectableChecker = TypeChecker.fromRuntime(Injectable);
@@ -26,9 +25,9 @@ const TypeChecker _disposeMethodChecker =
 class DependencyResolver {
   final ImportableTypeResolver _typeResolver;
 
-  late ImportableType _type;
-  late ImportableType _typeImpl;
-  int _injectableType = InjectableType.factory;
+  late ImportableType type;
+  late ImportableType typeImpl;
+  int injectableType = InjectableType.factory;
   bool? _signalsReady;
   bool _preResolve = false;
   List<ImportableType> _dependsOn = [];
@@ -42,27 +41,18 @@ class DependencyResolver {
 
   DependencyResolver(this._typeResolver);
 
-  DependencyConfig resolveConvention(
-      ClassElement element, ClassElement? interface, int type) {
-    _typeImpl = _typeResolver.resolveType(element.thisType);
-    _type = interface != null
-        ? _typeResolver.resolveType(interface.thisType)
-        : _typeImpl;
-    _injectableType = type;
+  DependencyConfig resolve(ClassElement element) {
+    type = _typeResolver.resolveType(element.thisType);
     return _resolveActualType(element);
   }
 
-  DependencyConfig resolveAnnotation(
+  DependencyConfig resolveModuleMember(
     ClassElement moduleClazz,
     ExecutableElement executableElement,
   ) {
     var moduleType = _typeResolver.resolveType(moduleClazz.thisType);
     var initializerName = executableElement.name;
     var isAbstract = false;
-
-    var inlineEnv;
-    DartType? abstractType;
-    ExecutableElement? disposeFuncFromAnnotation;
 
     final returnType = executableElement.returnType;
     throwIf(
@@ -96,21 +86,32 @@ class DependencyResolver {
       type: moduleType,
       initializerName: initializerName,
     );
-    this._type = _typeResolver.resolveType(type);
+    this.type = _typeResolver.resolveType(type);
+    return _resolveActualType(clazz as ClassElement, executableElement);
+  }
 
+  DependencyConfig _resolveActualType(
+    ClassElement clazz, [
+    ExecutableElement? excModuleMember,
+  ]) {
+    final annotatedElement = excModuleMember ?? clazz;
+    typeImpl = type;
     var injectableAnnotation = _injectableChecker.firstAnnotationOf(
-      executableElement,
+      annotatedElement,
       throwOnUnresolved: false,
     );
 
+    DartType? abstractType;
+    ExecutableElement? disposeFuncFromAnnotation;
+    var inlineEnv;
     if (injectableAnnotation != null) {
       final injectable = ConstantReader(injectableAnnotation);
       if (injectable.instanceOf(TypeChecker.fromRuntime(LazySingleton))) {
-        _injectableType = InjectableType.lazySingleton;
+        injectableType = InjectableType.lazySingleton;
         disposeFuncFromAnnotation =
             injectable.peek('dispose')?.objectValue.toFunctionValue();
       } else if (injectable.instanceOf(TypeChecker.fromRuntime(Singleton))) {
-        _injectableType = InjectableType.singleton;
+        injectableType = InjectableType.singleton;
         _signalsReady = injectable.peek('signalsReady')?.boolValue;
         disposeFuncFromAnnotation =
             injectable.peek('dispose')?.objectValue.toFunctionValue();
@@ -133,53 +134,28 @@ class DependencyResolver {
           .map((e) => e.toStringValue()!)
           .toList();
     }
-    if (disposeFuncFromAnnotation != null) {
-      final params = disposeFuncFromAnnotation.parameters;
-      throwIf(
-          params.length != 1 ||
-              _typeResolver.resolveType(params.first.type) != _type,
-          'Dispose function for $_type must have the same signature as FutureOr Function($_type instance)',
-          element: disposeFuncFromAnnotation);
-      _disposeFunctionConfig = DisposeFunctionConfig(
-        name: disposeFuncFromAnnotation.name,
-        importableType: _typeResolver.resolveFunctionType(
-            disposeFuncFromAnnotation.type, disposeFuncFromAnnotation),
-      );
-    }
     if (abstractType != null) {
       final abstractChecker = TypeChecker.fromStatic(abstractType);
-      var abstractSubtype = (clazz as ClassElement)
-          .allSupertypes
+      var abstractSubtype = clazz.allSupertypes
           .firstOrNull((type) => abstractChecker.isExactly(type.element));
 
       throwIf(
         abstractSubtype == null,
-        '[${(clazz as ClassElement).name}] is not a subtype of [${abstractType.getDisplayString(withNullability: false)}]',
+        '[${clazz.name}] is not a subtype of [${abstractType.getDisplayString(withNullability: false)}]',
         element: clazz,
       );
 
-      _type = _typeResolver.resolveType(abstractSubtype!);
+      type = _typeResolver.resolveType(abstractSubtype!);
     }
 
-    _environments = inlineEnv ?? const [];
-    _typeImpl = _type;
-    return _resolveActualType(clazz as ClassElement, executableElement);
-  }
-
-  DependencyConfig _resolveActualType(
-    ClassElement clazz, [
-    ExecutableElement? excModuleMember,
-  ]) {
-    final annotatedElement = excModuleMember ?? clazz;
-
-    if (_environments.isEmpty)
-      _environments = _envChecker
-              .annotationsOf(annotatedElement)
-              .map<String>(
-                (e) => e.getField('name')!.toStringValue()!,
-              )
-              .toList() ??
-          const [];
+    _environments = inlineEnv ??
+        _envChecker
+            .annotationsOf(annotatedElement)
+            .map<String>(
+              (e) => e.getField('name')!.toStringValue()!,
+            )
+            .toList() ??
+        const [];
 
     _preResolve = _preResolveChecker.hasAnnotationOfExact(annotatedElement);
 
@@ -199,7 +175,7 @@ class DependencyResolver {
         .firstOrNull((m) => _disposeMethodChecker.hasAnnotationOfExact(m));
     if (disposeMethod != null) {
       throwIf(
-        _injectableType == InjectableType.factory,
+        injectableType == InjectableType.factory,
         'Factory types can not have a dispose method',
         element: clazz,
       );
@@ -212,6 +188,18 @@ class DependencyResolver {
       _disposeFunctionConfig = DisposeFunctionConfig(
         isInstance: true,
         name: disposeMethod.name,
+      );
+    } else if (disposeFuncFromAnnotation != null) {
+      final params = disposeFuncFromAnnotation.parameters;
+      throwIf(
+          params.length != 1 ||
+              _typeResolver.resolveType(params.first.type) != type,
+          'Dispose function for $type must have the same signature as FutureOr Function($type instance)',
+          element: disposeFuncFromAnnotation);
+      _disposeFunctionConfig = DisposeFunctionConfig(
+        name: disposeFuncFromAnnotation.name,
+        importableType: _typeResolver.resolveFunctionType(
+            disposeFuncFromAnnotation.type, disposeFuncFromAnnotation),
       );
     }
 
@@ -282,7 +270,7 @@ class DependencyResolver {
     );
 
     throwIf(
-      _injectableType != InjectableType.factory && factoryParamsCount != 0,
+      injectableType != InjectableType.factory && factoryParamsCount != 0,
       'only factories can have parameters',
       element: clazz,
     );
@@ -293,9 +281,9 @@ class DependencyResolver {
     );
 
     return DependencyConfig(
-      type: _type,
-      typeImpl: _typeImpl,
-      injectableType: _injectableType,
+      type: type,
+      typeImpl: typeImpl,
+      injectableType: injectableType,
       dependencies: _dependencies,
       dependsOn: _dependsOn,
       environments: _environments,

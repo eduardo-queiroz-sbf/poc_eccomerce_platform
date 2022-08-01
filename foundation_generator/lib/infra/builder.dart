@@ -1,10 +1,10 @@
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 
-import 'generators/foundation_config.dart';
-import 'generators/foundation_convention.dart';
+import 'injectable/foundation_config.dart';
+import 'injectable/foundation_convention.dart';
 
-Builder foundationConventionBuilder(BuilderOptions options) {
+Builder foundationInjectableBuilder(BuilderOptions options) {
   return LibraryBuilder(
     FoundationConvention(options.config),
     formatOutput: (generated) => generated.replaceAll(RegExp(r'//.*|\s'), ''),
@@ -12,7 +12,7 @@ Builder foundationConventionBuilder(BuilderOptions options) {
   );
 }
 
-Builder foundationConfigBuilder(BuilderOptions options) {
+Builder foundationInjectableConfigBuilder(BuilderOptions options) {
   return LibraryBuilder(
     FoundationConfig(),
     generatedExtension: '.config.dart',
