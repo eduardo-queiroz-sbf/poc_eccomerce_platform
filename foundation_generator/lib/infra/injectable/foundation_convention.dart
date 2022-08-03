@@ -59,6 +59,7 @@ class FoundationConvention extends InjectableGenerator {
                     InferenceType.multipleByClassName
             ? clazz.interfaces.first.element
             : null;
+
         currentDependency.typeImpl = typeResolver.resolveType(clazz.thisType);
         currentDependency.type = interface != null
             ? typeResolver.resolveType(interface.thisType)

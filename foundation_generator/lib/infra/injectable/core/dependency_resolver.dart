@@ -42,7 +42,7 @@ class DependencyResolver {
   DependencyResolver(this._typeResolver);
 
   DependencyConfig resolve(ClassElement element) {
-    type = _typeResolver.resolveType(element.thisType);
+    // type = _typeResolver.resolveType(element.thisType);
     return _resolveActualType(element);
   }
 
@@ -95,7 +95,7 @@ class DependencyResolver {
     ExecutableElement? excModuleMember,
   ]) {
     final annotatedElement = excModuleMember ?? clazz;
-    typeImpl = type;
+    // typeImpl = type;
     var injectableAnnotation = _injectableChecker.firstAnnotationOf(
       annotatedElement,
       throwOnUnresolved: false,

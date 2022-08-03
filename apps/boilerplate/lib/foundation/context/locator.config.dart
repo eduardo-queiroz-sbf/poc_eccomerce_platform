@@ -4,10 +4,7 @@
 // Generator: FoundationConfig
 // **************************************************************************
 
-import 'package:firebase/screen_analytics.dart' as _i25;
-import 'package:foundation/interfaces/analytics/tap_analytics_interface.dart'
-    as _i24;
-import 'package:foundation/interfaces/bloc/bloc_interface.dart' as _i26;
+import 'package:foundation/interfaces/bloc/bloc_interface.dart' as _i24;
 import 'package:foundation/interfaces/builders/containers/search_header_builder.dart'
     as _i20;
 import 'package:foundation/interfaces/builders/screens/search.dart' as _i23;
@@ -32,7 +29,7 @@ import 'package:search/domain/repositories/autocomplete_repository.dart'
     as _i18;
 import 'package:search/presentation/screens/search_screen.dart' as _i22;
 import 'package:search/presentation/usecases/search_suggestion_use_case.dart'
-    as _i27;
+    as _i25;
 import 'package:search/routes.dart' as _i15;
 import 'package:search/setup.dart' as _i9;
 
@@ -67,10 +64,8 @@ _i1.GetIt $initGetIt(_i1.GetIt get,
       _i21.SearchHeaderContainer());
   gh.factoryParam<_i22.SearchScreen, _i23.SearchRoute, dynamic>(
       (routeParams, _) => _i22.SearchScreen(routeParams));
-  gh.factory<_i24.TapAnalyticsInterface>(() => _i25.FirebaseScreenAnalytics(),
-      instanceName: '0');
-  gh.factory<_i26.BlocInterface>(
-      () => _i27.SearchSuggestionUseCase(
+  gh.factory<_i24.BlocInterface>(
+      () => _i25.SearchSuggestionUseCase(
           get<_i18.SearchDomainSugestionRepository>()),
       instanceName: 'SearchSuggestionUseCase');
   return get;

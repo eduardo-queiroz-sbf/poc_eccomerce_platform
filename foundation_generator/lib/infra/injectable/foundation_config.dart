@@ -14,7 +14,9 @@ class FoundationConfig extends CoreInjectableConfigGenerator {
         ) {
           List<DependencyConfig> newDeps =
               overrideDependencies(deps, currentPackage);
-          return validateDuplicateDependencies(newDeps);
+          final teste = validateDuplicateDependencies(newDeps);
+          print(teste);
+          return teste;
         });
 
   static List<DependencyConfig> overrideDependencies(
@@ -65,6 +67,11 @@ class FoundationConfig extends CoreInjectableConfigGenerator {
         final convention = CleanConventions.conventions.singleWhereOrNull(
             (element) => RegExp(element.classPattern)
                 .hasMatch(multipleImpl.first.typeImpl.name));
+        // print(dep.typeImpl.name);
+        if (dep.type.name == "FeatureSetupInterface") {
+          print("sera que vai");
+          print(convention != null);
+        }
 
         if (convention!.inferenceType == InferenceType.multipleByInteger) {
           depsValues.addAll(

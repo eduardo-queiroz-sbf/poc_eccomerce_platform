@@ -1,7 +1,7 @@
 targets:
   $default:
     builders:
-      foundation:foundation_builder:
+      foundation_generator:foundation_builder:
         generate_for:
           include:
             - "lib/features/search/**"

@@ -27,3 +27,5 @@ dependencies:
     sdk: flutter
 
 dev_dependencies:
+  foundation_generator:
+    path: "./../foundation_generator"

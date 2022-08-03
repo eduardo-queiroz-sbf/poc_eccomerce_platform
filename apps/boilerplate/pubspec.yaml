@@ -20,6 +20,8 @@ dependencies:
     path: "./../../features/home"
   firebase:
     path: "./../../core/firebase"
+  foundation_generator:
+    path: "./../../foundation_generator"
   flutter_bloc: 8.0.1
   get_it: 7.2.0
   injectable: 1.5.3

@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+
+//added behavior (to work with monorepo)
+import 'package:build_test/build_test.dart';
 import 'package:code_builder/code_builder.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:glob/glob.dart';
@@ -37,18 +40,31 @@ class CoreInjectableConfigGenerator
     var preferRelativeImports =
         annotation.read("preferRelativeImports").boolValue;
 
-    final dirPattern = generateForDir.length > 1
-        ? '{${generateForDir.join(',')}}'
-        : '${generateForDir.first}';
-    final injectableConfigFiles = Glob("$dirPattern/**.injectable.json");
+    //overrided behavior (dont work with monorepo)
+    // final dirPattern = generateForDir.length > 1
+    //     ? '{${generateForDir.join(',')}}'
+    //     : '${generateForDir.first}';
 
     final jsonData = <Map>[];
-    await for (final id in buildStep.findAssets(injectableConfigFiles)) {
-      final json = jsonDecode(await buildStep.readAsString(id));
+
+    //added behavior (to work with monorepo)
+    final injectableConfigFiles = Glob("**/**.injectable.json");
+    var assetReader = await PackageAssetReader.currentIsolate(
+      rootPackage: buildStep.inputId.package,
+    );
+
+    await for (final id in assetReader.findAssets(injectableConfigFiles)) {
+      final json = jsonDecode(await assetReader.readAsString(id));
       jsonData.addAll([...json]);
     }
 
-    final deps = <DependencyConfig>[];
+    //overrided behavior (dont work with monorepo)
+    // await for (final id in buildStep.findAssets(injectableConfigFiles)) {
+    //   final json = jsonDecode(await buildStep.readAsString(id));
+    //   jsonData.addAll([...json]);
+    // }
+
+    List<DependencyConfig> deps = <DependencyConfig>[];
     jsonData.forEach((json) => deps.add(DependencyConfig.fromJson(json)));
 
     final initializerName = annotation.read('initializerName').stringValue;
@@ -66,10 +82,12 @@ class CoreInjectableConfigGenerator
         .map((e) => e.toStringValue())
         .where((e) => e != null)
         .cast<String>();
-    customCallback(deps, buildStep.inputId.package);
+    //custom behavior
+    deps = customCallback(deps, buildStep.inputId.package);
+    //custom behavior
     _reportMissingDependencies(
         deps, ignoredTypes, ignoreTypesInPackages, targetFile);
-    _validateDuplicateDependencies(deps);
+    // _validateDuplicateDependencies(deps);
     final generator = LibraryGenerator(
       dependencies: deps,
       targetFile: preferRelativeImports ? targetFile : null,
