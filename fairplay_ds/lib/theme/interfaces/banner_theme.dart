@@ -108,13 +108,13 @@ class CoreBannerThemeData {
   final Widget? image;
   final double? width;
   final double? height;
-  final CoreTypographyThemeData? title;
+  final CoreTypographyTheme? title;
   final String? titleContent;
-  final CoreTypographyThemeData? subtitle;
+  final CoreTypographyTheme? subtitle;
   final String? subtitleContent;
-  final CoreTypographyThemeData? anotherSubtitle;
+  final CoreTypographyTheme? anotherSubtitle;
   final String? anotherSubtitleContent;
-  final CoreTypographyThemeData? description;
+  final CoreTypographyTheme? description;
   final String? descriptionContent;
   final CoreButtonTheme? button1;
   final String? button1Content;
@@ -125,13 +125,13 @@ class CoreBannerThemeData {
     final Widget? image,
     final double? width,
     final double? height,
-    final CoreTypographyThemeData? title,
+    final CoreTypographyTheme? title,
     final String? titleContent,
-    final CoreTypographyThemeData? subtitle,
+    final CoreTypographyTheme? subtitle,
     final String? subtitleContent,
-    final CoreTypographyThemeData? anotherSubtitle,
+    final CoreTypographyTheme? anotherSubtitle,
     final String? anotherSubtitleContent,
-    final CoreTypographyThemeData? description,
+    final CoreTypographyTheme? description,
     final String? descriptionContent,
     final CoreButtonTheme? button1,
     final String? button1Content,

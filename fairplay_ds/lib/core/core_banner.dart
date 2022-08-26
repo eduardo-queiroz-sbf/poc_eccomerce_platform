@@ -16,7 +16,6 @@ class CoreBanner extends StatefulWidget {
       required this.image,
       required this.title,
       required this.titleContent,
-      required this.padding,
       this.subtitle,
       this.subtitleContent,
       this.anotherSubtitle,
@@ -36,7 +35,6 @@ class CoreBanner extends StatefulWidget {
       required this.image,
       required this.title,
       required this.titleContent,
-      required this.padding,
       this.subtitle,
       this.subtitleContent,
       this.anotherSubtitle,
@@ -58,7 +56,6 @@ class CoreBanner extends StatefulWidget {
       required this.image,
       required this.title,
       required this.titleContent,
-      required this.padding,
       this.subtitle,
       this.subtitleContent,
       this.anotherSubtitle,
@@ -80,7 +77,6 @@ class CoreBanner extends StatefulWidget {
       required this.image,
       required this.title,
       required this.titleContent,
-      required this.padding,
       this.subtitle,
       this.subtitleContent,
       this.anotherSubtitle,
@@ -98,7 +94,6 @@ class CoreBanner extends StatefulWidget {
   final CoreBannerOrientationType coreBannerOrientationType;
   final CoreBannerType? coreBannerType;
   final CoreBannerSizeType coreBannerSizeType;
-  final CoreSpacing? padding;
   final Widget image;
   final CoreTypography title;
   final String? titleContent;
@@ -137,7 +132,7 @@ class _CoreBannerState extends State<CoreBanner> {
         children: [
           currentStyle.image!,
           CoreContainer(
-            padding: const CoreSpacing(
+            margin: const CoreSpacing(
                 top: CoreSpacingType.large, left: CoreSpacingType.small),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,7 +142,9 @@ class _CoreBannerState extends State<CoreBanner> {
                   child: CoreTypography.bodyText2Normal('Subtítulo'),
                 ),
                 const CoreContainer(
-                  padding: CoreSpacing(bottom: CoreSpacingType.small),
+                  
+                  padding: CoreSpacing(bottom:
+                   CoreSpacingType.small),
                   child: CoreTypography.headline1('TÍTULO'),
                 ),
                 const CoreContainer(
@@ -184,7 +181,7 @@ class _CoreBannerState extends State<CoreBanner> {
         children: [
           currentStyle.image!,
           CoreContainer(
-            padding: const CoreSpacing(
+            margin: const CoreSpacing(
                 top: CoreSpacingType.large, left: CoreSpacingType.small),
             child: SizedBox(
               width: currentStyle.width!,
