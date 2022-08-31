@@ -1,5 +1,6 @@
 import 'package:fairplay_ds/core/core_typography.dart';
 import 'package:fairplay_ds/theme/interfaces/spacing_theme.dart';
+import 'package:fairplay_ds/theme/interfaces/typography_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/interfaces/banner_theme.dart';
@@ -15,17 +16,11 @@ class CoreBanner extends StatefulWidget {
       required this.coreBannerOrientationType,
       required this.image,
       required this.title,
-      required this.titleContent,
-      this.subtitle,
-      this.subtitleContent,
-      this.anotherSubtitle,
-      this.anotherSubtitleContent,
-      this.description,
-      this.descriptionContent,
-      this.button1,
-      this.button1Content,
-      this.button2,
-      this.button2Content,
+      this.subtitle = '',
+      this.anotherSubtitle = '',
+      this.description = '',
+      this.button1 = '',
+      this.button2 = '',
       required this.height,
       required this.width});
   const CoreBanner.square(
@@ -34,20 +29,13 @@ class CoreBanner extends StatefulWidget {
       this.coreBannerSizeType = CoreBannerSizeType.entireScreen,
       required this.image,
       required this.title,
-      required this.titleContent,
-      this.subtitle,
-      this.subtitleContent,
-      this.anotherSubtitle,
-      this.anotherSubtitleContent,
-      this.description,
-      this.descriptionContent,
-      this.button1,
-      this.button1Content,
-      this.button2,
-      this.button2Content,
+      this.subtitle = '',
+      this.anotherSubtitle = '',
+      this.description = '',
+      this.button1 = '',
+      this.button2 = '',
       required this.height,
-      required this.width})
-      : this.coreBannerOrientationType = CoreBannerOrientationType.square;
+      required this.width}) : this.coreBannerOrientationType = CoreBannerOrientationType.square;
 
   const CoreBanner.portrait(
       {this.key,
@@ -55,17 +43,11 @@ class CoreBanner extends StatefulWidget {
       this.coreBannerSizeType = CoreBannerSizeType.entireScreen,
       required this.image,
       required this.title,
-      required this.titleContent,
-      this.subtitle,
-      this.subtitleContent,
-      this.anotherSubtitle,
-      this.anotherSubtitleContent,
-      this.description,
-      this.descriptionContent,
-      this.button1,
-      this.button1Content,
-      this.button2,
-      this.button2Content,
+      this.subtitle = '',
+      this.anotherSubtitle = '',
+      this.description = '',
+      this.button1 = '',
+      this.button2 = '',
       required this.height,
       required this.width})
       : this.coreBannerOrientationType = CoreBannerOrientationType.portrait;
@@ -76,17 +58,11 @@ class CoreBanner extends StatefulWidget {
       this.coreBannerSizeType = CoreBannerSizeType.entireScreen,
       required this.image,
       required this.title,
-      required this.titleContent,
-      this.subtitle,
-      this.subtitleContent,
-      this.anotherSubtitle,
-      this.anotherSubtitleContent,
-      this.description,
-      this.descriptionContent,
-      this.button1,
-      this.button1Content,
-      this.button2,
-      this.button2Content,
+      this.subtitle = '',
+      this.anotherSubtitle = '',
+      this.description = '',
+      this.button1 = '',
+      this.button2 = '',
       required this.height,
       required this.width})
       : this.coreBannerOrientationType = CoreBannerOrientationType.landscape;
@@ -95,18 +71,12 @@ class CoreBanner extends StatefulWidget {
   final CoreBannerType? coreBannerType;
   final CoreBannerSizeType coreBannerSizeType;
   final Widget image;
-  final CoreTypography title;
-  final String? titleContent;
-  final CoreTypography? subtitle;
-  final String? subtitleContent;
-  final CoreTypography? anotherSubtitle;
-  final String? anotherSubtitleContent;
-  final CoreTypography? description;
-  final String? descriptionContent;
-  final CoreButton? button1;
-  final String? button1Content;
-  final CoreButton? button2;
-  final String? button2Content;
+  final String title;
+  final String subtitle;
+  final String anotherSubtitle;
+  final String description;
+  final String button1;
+  final String button2;
   final double width;
   final double height;
   final Key? key;
@@ -137,31 +107,30 @@ class _CoreBannerState extends State<CoreBanner> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const CoreContainer(
-                  padding: CoreSpacing(bottom: CoreSpacingType.small),
-                  child: CoreTypography.bodyText2Normal('Subtítulo'),
+                CoreContainer(
+                  padding: const CoreSpacing(bottom: CoreSpacingType.small),
+                  child: CoreTypography(widget.subtitle, type: CoreTextType.bodyText2Normal,),
                 ),
-                const CoreContainer(
-                  
-                  padding: CoreSpacing(bottom:
+                CoreContainer(
+                  padding: const CoreSpacing(bottom:
                    CoreSpacingType.small),
-                  child: CoreTypography.headline1('TÍTULO'),
+                  child: CoreTypography(widget.title, type: CoreTextType.headline1,),
                 ),
-                const CoreContainer(
-                  padding: CoreSpacing(bottom: CoreSpacingType.medium),
-                  child: CoreTypography.bodyText2Normal('Outro subtítulo'),
+                CoreContainer(
+                  padding: const CoreSpacing(bottom: CoreSpacingType.medium),
+                  child: CoreTypography(widget.anotherSubtitle, type: CoreTextType.bodyText2Normal,),
                 ),
                 Row(
-                  children: const [
+                  children: [
                     CoreButton(
-                      content: 'Rótulo',
+                      content: widget.button1,
                       coreButtonType: CoreButtonType.elevated,
                       coreButtonSizeType: CoreButtonSizeType.small,
                     ),
                     CoreContainer(
-                      padding: CoreSpacing(left: CoreSpacingType.medium),
+                      padding: const CoreSpacing(left: CoreSpacingType.medium),
                       child: CoreButton(
-                        content: 'Rótulo',
+                        content: widget.button2,
                         coreButtonType: CoreButtonType.elevated,
                         coreButtonSizeType: CoreButtonSizeType.small,
                       ),
@@ -189,34 +158,33 @@ class _CoreBannerState extends State<CoreBanner> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CoreContainer(
-                    padding: CoreSpacing(bottom: CoreSpacingType.small),
-                    child: CoreTypography.bodyText1Normal('Subtítulo'),
+                  CoreContainer(
+                    padding: const CoreSpacing(bottom: CoreSpacingType.small),
+                    child: CoreTypography(widget.subtitle, type: CoreTextType.bodyText2Normal,),
                   ),
-                  const CoreContainer(
-                    padding: CoreSpacing(bottom: CoreSpacingType.small),
-                    child: CoreTypography.headline1('TÍTULO'),
+                  CoreContainer(
+                    padding: const CoreSpacing(bottom: CoreSpacingType.small),
+                    child: CoreTypography(widget.title, type: CoreTextType.headline1,),
                   ),
-                  const CoreContainer(
-                    padding: CoreSpacing(bottom: CoreSpacingType.medium),
-                    child: CoreTypography.bodyText1Normal('Outro subtítulo'),
+                  CoreContainer(
+                    padding: const CoreSpacing(bottom: CoreSpacingType.medium),
+                    child: CoreTypography(widget.anotherSubtitle, type: CoreTextType.bodyText2Normal,),
                   ),
-                  const CoreContainer(
-                    padding: CoreSpacing(bottom: CoreSpacingType.medium),
-                    child: CoreTypography.bodyText1Normal(
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Duis ut diam quam nulla porttitor massa id neque aliquam. Enim neque volutpat ac tincidunt. Eu ultrices vitae auctor eu augue. Est lorem ipsum dolor sit. '),
+                  CoreContainer(
+                    padding: const CoreSpacing(bottom: CoreSpacingType.medium),
+                    child: CoreTypography(widget.description, type: CoreTextType.bodyText1Normal,),
                   ),
                   Row(
-                    children: const [
+                    children: [
                       CoreButton(
-                        content: 'Rótulo',
+                        content: widget.button1,
                         coreButtonType: CoreButtonType.elevated,
                         coreButtonSizeType: CoreButtonSizeType.small,
                       ),
                       CoreContainer(
-                        padding: CoreSpacing(left: CoreSpacingType.medium),
+                        padding: const CoreSpacing(left: CoreSpacingType.medium),
                         child: CoreButton(
-                          content: 'Rótulo',
+                          content: widget.button2,
                           coreButtonType: CoreButtonType.elevated,
                           coreButtonSizeType: CoreButtonSizeType.small,
                         ),
