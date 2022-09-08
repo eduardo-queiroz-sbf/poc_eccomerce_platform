@@ -9,66 +9,60 @@ import 'core_button.dart';
 import 'core_container.dart';
 
 class CoreBanner extends StatefulWidget {
-  const CoreBanner(
-      {this.key,
-      this.coreBannerType,
-      required this.coreBannerSizeType,
-      required this.coreBannerOrientationType,
-      required this.image,
-      required this.title,
-      this.subtitle = '',
-      this.anotherSubtitle = '',
-      this.description = '',
-      this.button1 = '',
-      this.button2 = '',
-      required this.height,
-      required this.width});
-  const CoreBanner.square(
-      {this.key,
-      this.coreBannerType,
-      this.coreBannerSizeType = CoreBannerSizeType.entireScreen,
-      required this.image,
-      required this.title,
-      this.subtitle = '',
-      this.anotherSubtitle = '',
-      this.description = '',
-      this.button1 = '',
-      this.button2 = '',
-      required this.height,
-      required this.width}) : this.coreBannerOrientationType = CoreBannerOrientationType.square;
+  const CoreBanner({
+    this.key,
+    required this.coreBannerType,
+    required this.coreBannerSizeType,
+    required this.coreBannerOrientationType,
+    required this.image,
+    required this.title,
+    this.subtitle = '',
+    this.anotherSubtitle = '',
+    this.description = '',
+    this.button1 = '',
+    this.button2 = '',
+  });
+  const CoreBanner.square({
+    this.key,
+    required this.coreBannerType,
+    required this.coreBannerSizeType,
+    required this.image,
+    required this.title,
+    this.subtitle = '',
+    this.anotherSubtitle = '',
+    this.description = '',
+    this.button1 = '',
+    this.button2 = '',
+  }) : this.coreBannerOrientationType = CoreBannerOrientationType.square;
 
-  const CoreBanner.portrait(
-      {this.key,
-      this.coreBannerType,
-      this.coreBannerSizeType = CoreBannerSizeType.entireScreen,
-      required this.image,
-      required this.title,
-      this.subtitle = '',
-      this.anotherSubtitle = '',
-      this.description = '',
-      this.button1 = '',
-      this.button2 = '',
-      required this.height,
-      required this.width})
-      : this.coreBannerOrientationType = CoreBannerOrientationType.portrait;
+  const CoreBanner.portrait({
+    this.key,
+    required this.coreBannerType,
+    required this.coreBannerSizeType,
+    required this.image,
+    required this.title,
+    this.subtitle = '',
+    this.anotherSubtitle = '',
+    this.description = '',
+    this.button1 = '',
+    this.button2 = '',
+  }) : coreBannerOrientationType = CoreBannerOrientationType.portrait;
 
   const CoreBanner.landscape(
       {this.key,
-      this.coreBannerType,
-      this.coreBannerSizeType = CoreBannerSizeType.entireScreen,
+      required this.coreBannerType,
+      required this.coreBannerSizeType,
       required this.image,
       required this.title,
       this.subtitle = '',
       this.anotherSubtitle = '',
       this.description = '',
       this.button1 = '',
-      this.button2 = '',
-      required this.height,
-      required this.width})
-      : this.coreBannerOrientationType = CoreBannerOrientationType.landscape;
+      this.button2 = ''})
+      : coreBannerOrientationType = CoreBannerOrientationType.landscape;
 
   final CoreBannerOrientationType coreBannerOrientationType;
-  final CoreBannerType? coreBannerType;
+  final CoreBannerType coreBannerType;
   final CoreBannerSizeType coreBannerSizeType;
   final Widget image;
   final String title;
@@ -77,8 +71,6 @@ class CoreBanner extends StatefulWidget {
   final String description;
   final String button1;
   final String button2;
-  final double width;
-  final double height;
   final Key? key;
 
   @override
@@ -100,7 +92,7 @@ class _CoreBannerState extends State<CoreBanner> {
     if (widget.coreBannerType == CoreBannerType.contentOutsideImage) {
       Stack(
         children: [
-          currentStyle.image!,
+          widget.image,
           CoreContainer(
             margin: const CoreSpacing(
                 top: CoreSpacingType.large, left: CoreSpacingType.small),
@@ -109,16 +101,24 @@ class _CoreBannerState extends State<CoreBanner> {
               children: [
                 CoreContainer(
                   padding: const CoreSpacing(bottom: CoreSpacingType.small),
-                  child: CoreTypography(widget.subtitle, type: CoreTextType.bodyText2Normal,),
+                  child: CoreTypography(
+                    widget.subtitle,
+                    type: CoreTextType.bodyText2Normal,
+                  ),
                 ),
                 CoreContainer(
-                  padding: const CoreSpacing(bottom:
-                   CoreSpacingType.small),
-                  child: CoreTypography(widget.title, type: CoreTextType.headline1,),
+                  padding: const CoreSpacing(bottom: CoreSpacingType.small),
+                  child: CoreTypography(
+                    widget.title,
+                    type: CoreTextType.headline1,
+                  ),
                 ),
                 CoreContainer(
                   padding: const CoreSpacing(bottom: CoreSpacingType.medium),
-                  child: CoreTypography(widget.anotherSubtitle, type: CoreTextType.bodyText2Normal,),
+                  child: CoreTypography(
+                    widget.anotherSubtitle,
+                    type: CoreTextType.bodyText2Normal,
+                  ),
                 ),
                 Row(
                   children: [
@@ -148,31 +148,39 @@ class _CoreBannerState extends State<CoreBanner> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          currentStyle.image!,
+          widget.image,
           CoreContainer(
             margin: const CoreSpacing(
                 top: CoreSpacingType.large, left: CoreSpacingType.small),
             child: SizedBox(
-              width: currentStyle.width!,
+              width: currentStyle.imageWidth,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CoreContainer(
                     padding: const CoreSpacing(bottom: CoreSpacingType.small),
-                    child: CoreTypography(widget.subtitle, type: CoreTextType.bodyText2Normal,),
+                    child: CoreTypography(widget.subtitle,
+                        type: CoreTextType.bodyText2Normal,
+                        textStyle: currentStyle.subtitleStyle),
                   ),
                   CoreContainer(
                     padding: const CoreSpacing(bottom: CoreSpacingType.small),
-                    child: CoreTypography(widget.title, type: CoreTextType.headline1,),
+                    child: CoreTypography(widget.title,
+                        type: CoreTextType.headline1,
+                        textStyle: currentStyle.titleStyle),
                   ),
                   CoreContainer(
                     padding: const CoreSpacing(bottom: CoreSpacingType.medium),
-                    child: CoreTypography(widget.anotherSubtitle, type: CoreTextType.bodyText2Normal,),
+                    child: CoreTypography(widget.anotherSubtitle,
+                        type: CoreTextType.bodyText2Normal,
+                        textStyle: currentStyle.anotherSubtitleStyle),
                   ),
                   CoreContainer(
                     padding: const CoreSpacing(bottom: CoreSpacingType.medium),
-                    child: CoreTypography(widget.description, type: CoreTextType.bodyText1Normal,),
+                    child: CoreTypography(widget.description,
+                        type: CoreTextType.bodyText1Normal,
+                        textStyle: currentStyle.descriptionStyle),
                   ),
                   Row(
                     children: [
@@ -182,7 +190,8 @@ class _CoreBannerState extends State<CoreBanner> {
                         coreButtonSizeType: CoreButtonSizeType.small,
                       ),
                       CoreContainer(
-                        padding: const CoreSpacing(left: CoreSpacingType.medium),
+                        padding:
+                            const CoreSpacing(left: CoreSpacingType.medium),
                         child: CoreButton(
                           content: widget.button2,
                           coreButtonType: CoreButtonType.elevated,

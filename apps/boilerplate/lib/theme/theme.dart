@@ -1,3 +1,4 @@
+import 'package:fairplay_ds/theme/interfaces/banner_theme.dart';
 import 'package:foundation/interfaces/theme/custom_theme.dart';
 
 import '../theme/constants.dart';
@@ -32,6 +33,14 @@ class CustomTheme implements CustomThemeInterface {
       unselectedItemColor: CoreColorScheme().neutral400,
     );
 
+    final CoreBannerTheme _coreBannerTheme = CoreBannerTheme(
+      size: <CoreBannerSizeType, CoreBannerThemeData>{
+        CoreBannerSizeType.entireScreen: CoreBannerThemeData(
+        ),
+      },
+      type: {},
+    );
+    
     final CoreButtonTheme _coreButtonTheme = CoreButtonTheme(
       size: <CoreButtonSizeType, CoreButtonThemeData>{
         CoreButtonSizeType.tiny: CoreButtonThemeData(
